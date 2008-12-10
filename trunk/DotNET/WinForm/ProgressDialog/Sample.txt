@@ -1,0 +1,42 @@
+		// Originally ninjad from http://www.codeproject.com/KB/cs/PIEBALDProgressDialog.aspx
+		// Modified for my req's
+		
+		object SaveAction(params object[] Params)
+        {
+            ProgressDialog ProgressDlg = (ProgressDialog)Params[0];
+            int howlong = (int)Params[1] * 10;
+
+            // This is a simple way of implementing the cancel handling
+            for (int runner = 0; !ProgressDlg.WasCancelled && (runner < howlong); runner++)
+            {
+                System.Threading.Thread.Sleep(100);
+
+                // Need to update the ProgressBar when it's Block or Continuous style
+                // Use a calculation that's appropriate for your usage
+                ProgressDlg.RaiseUpdateProgress(runner * 100 / howlong);
+            }
+
+            return (System.DateTime.Now);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ProgressDialog dlg = new ProgressDialog();
+            dlg.ControlBox = false;
+            dlg.Configure(
+                "Save..",
+                null,
+                ProgressBarStyle.Blocks,
+                false,
+                SaveAction,
+                new object[] { dlg, 10 }
+                );
+            /
+            System.DateTime start = System.DateTime.Now;
+            
+            dlg.ShowDialog();
+
+            // Afterward you can access the WasCancelled and Result properties as needed
+            string Output = string.Format("{0} {1:0.00} seconds", dlg.WasCancelled ? "Woken after" : "Slept for", ((System.DateTime)dlg.Result - start).TotalSeconds);
+            MessageBox.Show(Output);
+        }
